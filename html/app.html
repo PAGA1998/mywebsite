@@ -3,51 +3,127 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Web App | Piero</title>
+  <title>Piero | Web App (Number Guessing Game)</title>
 
-  <!-- Use your existing site CSS (optional but nice) -->
+  <!-- Your site stylesheet (from html/ folder, go up one level to styles/) -->
   <link rel="stylesheet" href="../styles/styles.css" />
 
-  <!-- App-specific styles (kept inside this file on purpose) -->
   <style>
-    .app-wrap { max-width: 900px; margin: 0 auto; padding: 28px 16px 60px; }
-    .app-card {
-      border: 1px solid rgba(255,255,255,.12);
+    /* App-only styles (kept in this one page, per assignment suggestion) */
+    :root { --card: rgba(255,255,255,.06); --line: rgba(255,255,255,.14); }
+
+    body { min-height: 100vh; }
+
+    .appWrap{
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 16px 56px;
+    }
+
+    .appGrid{
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 860px){
+      .appGrid{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      background: var(--card);
+      border: 1px solid var(--line);
       border-radius: 16px;
       padding: 18px;
-      margin-top: 16px;
-      background: rgba(255,255,255,.04);
+      box-shadow: 0 8px 30px rgba(0,0,0,.25);
     }
-    .app-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
-    @media (min-width: 860px) { .app-grid { grid-template-columns: 1.1fr .9fr; } }
-    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    input[type="number"]{
-      padding: 10px 12px;
+
+    .panel h2{ margin: 0 0 6px; }
+    .muted{ opacity: .85; }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top: 12px;
+    }
+
+    .input{
+      flex: 1 1 220px;
+      padding: 12px 12px;
       border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.18);
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.15);
       color: inherit;
-      width: 140px;
       outline: none;
     }
-    button{
-      padding: 10px 14px;
+    .input:focus{
+      border-color: rgba(255,255,255,.28);
+      box-shadow: 0 0 0 3px rgba(255,255,255,.08);
+    }
+
+    .btnApp{
+      padding: 12px 14px;
       border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.18);
+      border: 1px solid var(--line);
       background: rgba(255,255,255,.10);
       color: inherit;
       cursor: pointer;
+      font-weight: 700;
     }
-    button:hover{ background: rgba(255,255,255,.16); }
-    .status { font-weight: 600; }
-    .muted { opacity: .8; }
-    .tiny { font-size: .92rem; opacity: .85; }
-    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .btnApp:hover{ background: rgba(255,255,255,.16); }
+
+    .status{
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px dashed var(--line);
+      background: rgba(0,0,0,.12);
+      min-height: 48px;
+      display:flex;
+      align-items:center;
+    }
+
+    .kpis{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .kpiBox{
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255,255,255,.06);
+    }
+    .kpiLabel{ font-size: 12px; opacity: .75; }
+    .kpiVal{ font-size: 20px; font-weight: 900; margin-top: 4px; }
+
+    .history{
+      margin-top: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+      line-height: 1.45;
+      opacity: .92;
+      white-space: pre-wrap;
+    }
+
+    /* Simple “pill” tags */
+    .pill{
+      display:inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.12);
+      font-size: 12px;
+      opacity: .9;
+    }
   </style>
 </head>
 
 <body>
-  <!-- Same nav style you use elsewhere -->
+  <!-- NAV (matches your other pages: from html/ folder, Home is ../index.html) -->
   <header class="nav">
     <div class="container nav-inner">
       <a class="brand" href="../index.html">PIERO • FINANCE</a>
@@ -56,124 +132,208 @@
         <a href="resume.html">Resume</a>
         <a href="skills.html">Skills</a>
         <a href="tableau.html">Tableau</a>
-        <a href="scratch.html">Scratch</a>
         <a class="active" href="app.html">Web App</a>
+        <a href="scratch.html">Scratch</a>
       </nav>
     </div>
   </header>
 
-  <main class="app-wrap">
-    <h1>🎯 Number Guessing Game</h1>
-    <p class="subtitle">
-      A small web app I built with AI help and then customized (rules, UI, feedback, and controls).
-    </p>
+  <main class="appWrap">
+    <div class="panel">
+      <h1 style="margin:0 0 6px;">🎯 Number Guessing Game</h1>
+      <p class="muted" style="margin:0;">
+        Pick a difficulty, then guess the secret number. Built from scratch (HTML + CSS + JavaScript) on one page.
+      </p>
+      <div class="row" style="margin-top:12px;">
+        <span class="pill">No libraries</span>
+        <span class="pill">Keyboard Enter support</span>
+        <span class="pill">Tracks attempts + best score</span>
+      </div>
+    </div>
 
-    <div class="app-grid">
-      <section class="app-card">
-        <h2 style="margin-top:0;">Play</h2>
-        <p class="muted">Guess the secret number between <strong>1</strong> and <strong>100</strong>.</p>
+    <div class="appGrid" style="margin-top: 18px;">
+      <!-- Left: Game -->
+      <section class="panel">
+        <h2>Play</h2>
+        <p class="muted" style="margin:0;">
+          Choose a range, then type a number and hit <b>Guess</b> (or press <b>Enter</b>).
+        </p>
 
         <div class="row">
-          <label for="guess" class="status">Your guess:</label>
-          <input id="guess" type="number" min="1" max="100" placeholder="1–100" />
-          <button id="btnGuess">Guess</button>
-          <button id="btnNew">New Game</button>
+          <label for="difficulty" class="muted" style="min-width:120px;">Difficulty</label>
+          <select id="difficulty" class="input" style="flex: 1 1 260px;">
+            <option value="easy">Easy (1–25)</option>
+            <option value="medium" selected>Medium (1–50)</option>
+            <option value="hard">Hard (1–100)</option>
+          </select>
+          <button class="btnApp" id="newGameBtn" type="button">New Game</button>
         </div>
 
-        <div style="margin-top:12px;">
-          <p class="status" id="message">Click <strong>New Game</strong> to start.</p>
-          <p class="tiny">Tip: Press <span class="kbd">Enter</span> to submit a guess.</p>
+        <div class="row">
+          <input id="guessInput" class="input" type="number" inputmode="numeric" placeholder="Enter your guess…" />
+          <button class="btnApp" id="guessBtn" type="button">Guess</button>
+          <button class="btnApp" id="revealBtn" type="button">Reveal</button>
         </div>
+
+        <div class="status" id="statusBox">
+          Make your first guess 👀
+        </div>
+
+        <div class="kpis">
+          <div class="kpiBox">
+            <div class="kpiLabel">Range</div>
+            <div class="kpiVal" id="rangeVal">1–50</div>
+          </div>
+          <div class="kpiBox">
+            <div class="kpiLabel">Attempts</div>
+            <div class="kpiVal" id="attemptsVal">0</div>
+          </div>
+          <div class="kpiBox">
+            <div class="kpiLabel">Best (this device)</div>
+            <div class="kpiVal" id="bestVal">—</div>
+          </div>
+        </div>
+
+        <div class="history" id="historyBox"></div>
       </section>
 
-      <aside class="app-card">
-        <h2 style="margin-top:0;">Stats</h2>
-        <p><span class="status">Attempts:</span> <span id="attempts">0</span></p>
-        <p><span class="status">Best game:</span> <span id="best">—</span></p>
+      <!-- Right: How it works -->
+      <aside class="panel">
+        <h2>How it works</h2>
+        <ul class="list">
+          <li>Generates a random integer within the selected range.</li>
+          <li>On each guess, compares your input to the secret number.</li>
+          <li>Gives feedback: <b>Too high</b>, <b>Too low</b>, or <b>Correct</b>.</li>
+          <li>Saves your best attempt count using <code>localStorage</code>.</li>
+        </ul>
+
         <div class="hr"></div>
-        <p class="tiny">
-          This app uses basic HTML + CSS + JavaScript in a single file (no frameworks),
-          so it runs cleanly on GitHub Pages.
+
+        <h3>Navigation</h3>
+        <ul class="list">
+          <li><a href="../index.html">Return Home</a></li>
+          <li><a href="scratch.html">Back to Scratch</a></li>
+          <li><a href="tableau.html">View Tableau</a></li>
+        </ul>
+
+        <p class="small" style="margin-top:10px;">
+          Tip: If GitHub Pages caches an old version, refresh with <b>Cmd + Shift + R</b> or add <code>?v=2</code> to the URL.
         </p>
       </aside>
     </div>
-
-    <div class="app-card">
-      <h2 style="margin-top:0;">Back to Scratch Page</h2>
-      <p class="muted">Return to the from-scratch page where this app is linked.</p>
-      <a class="btn primary" href="scratch.html">Go to Scratch</a>
-      <a class="btn ghost" href="../index.html">Home</a>
-    </div>
   </main>
 
+  <footer class="footer">
+    <div class="container">© <span id="year"></span> Piero Gongora • Built for BYU Web Project</div>
+  </footer>
+
   <script>
-    // --- Game state ---
-    let secret = null;
+    // ===== Helpers =====
+    const $ = (id) => document.getElementById(id);
+
+    const ranges = {
+      easy:   { min: 1, max: 25 },
+      medium: { min: 1, max: 50 },
+      hard:   { min: 1, max: 100 }
+    };
+
+    let secret = 0;
     let attempts = 0;
-    let best = null;
+    let min = 1;
+    let max = 50;
+    let history = [];
 
-    const guessEl = document.getElementById("guess");
-    const msgEl = document.getElementById("message");
-    const attemptsEl = document.getElementById("attempts");
-    const bestEl = document.getElementById("best");
-    const btnGuess = document.getElementById("btnGuess");
-    const btnNew = document.getElementById("btnNew");
+    const bestKey = "piero_guess_best";
 
-    function setMessage(text) {
-      msgEl.textContent = text;
+    function randInt(a, b){
+      return Math.floor(Math.random() * (b - a + 1)) + a;
     }
 
-    function updateStats() {
-      attemptsEl.textContent = attempts;
-      bestEl.textContent = best === null ? "—" : best;
+    function setStatus(msg){
+      $("statusBox").textContent = msg;
     }
 
-    function newGame() {
-      secret = Math.floor(Math.random() * 100) + 1;
+    function render(){
+      $("rangeVal").textContent = `${min}–${max}`;
+      $("attemptsVal").textContent = attempts.toString();
+
+      const best = localStorage.getItem(bestKey);
+      $("bestVal").textContent = best ? best : "—";
+
+      $("historyBox").textContent = history.length
+        ? "Guesses: " + history.join(", ")
+        : "";
+    }
+
+    function newGame(){
+      const diff = $("difficulty").value;
+      min = ranges[diff].min;
+      max = ranges[diff].max;
+
+      secret = randInt(min, max);
       attempts = 0;
-      guessEl.value = "";
-      guessEl.focus();
-      setMessage("Game started! Enter a number from 1 to 100.");
-      updateStats();
+      history = [];
+
+      $("guessInput").value = "";
+      setStatus("New game started. Make a guess!");
+      render();
+      $("guessInput").focus();
     }
 
-    function submitGuess() {
-      if (secret === null) {
-        setMessage("Start first: click New Game.");
+    function reveal(){
+      setStatus(`Secret number was ${secret}. Click "New Game" to try again.`);
+    }
+
+    function submitGuess(){
+      const raw = $("guessInput").value;
+      const guess = Number(raw);
+
+      if (!raw){
+        setStatus("Please type a number first.");
         return;
       }
-
-      const val = Number(guessEl.value);
-      if (!Number.isFinite(val) || val < 1 || val > 100) {
-        setMessage("Please enter a valid number between 1 and 100.");
+      if (!Number.isFinite(guess) || !Number.isInteger(guess)){
+        setStatus("Please enter a whole number.");
+        return;
+      }
+      if (guess < min || guess > max){
+        setStatus(`Out of range. Enter a number from ${min} to ${max}.`);
         return;
       }
 
       attempts += 1;
-      updateStats();
+      history.push(guess);
 
-      if (val === secret) {
-        setMessage(`✅ Correct! The number was ${secret}. You got it in ${attempts} attempt(s).`);
-        if (best === null || attempts < best) best = attempts;
-        updateStats();
-        secret = null; // end game
-        return;
+      if (guess === secret){
+        setStatus(`✅ Correct! You got it in ${attempts} attempt(s).`);
+
+        const best = localStorage.getItem(bestKey);
+        if (!best || attempts < Number(best)){
+          localStorage.setItem(bestKey, String(attempts));
+        }
+      } else if (guess < secret){
+        setStatus("⬆️ Too low. Try higher.");
+      } else {
+        setStatus("⬇️ Too high. Try lower.");
       }
 
-      const diff = Math.abs(val - secret);
-      const temp = diff <= 5 ? "🔥 super close" : diff <= 12 ? "🌡️ warm" : "🧊 cold";
-      setMessage(val < secret ? `Too low (${temp}). Try again.` : `Too high (${temp}). Try again.`);
-      guessEl.select();
+      render();
+      $("guessInput").select();
     }
 
-    // --- Events ---
-    btnNew.addEventListener("click", newGame);
-    btnGuess.addEventListener("click", submitGuess);
-    guessEl.addEventListener("keydown", (e) => {
+    // ===== Wire up events =====
+    $("newGameBtn").addEventListener("click", newGame);
+    $("guessBtn").addEventListener("click", submitGuess);
+    $("revealBtn").addEventListener("click", reveal);
+    $("difficulty").addEventListener("change", newGame);
+
+    $("guessInput").addEventListener("keydown", (e) => {
       if (e.key === "Enter") submitGuess();
     });
 
-    // Optional: auto-start
+    $("year").textContent = new Date().getFullYear();
+
+    // Start
     newGame();
   </script>
 </body>
