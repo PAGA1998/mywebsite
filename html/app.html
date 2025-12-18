@@ -3,10 +3,178 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>App Test</title>
+  <title>Web App | Piero</title>
+
+  <!-- Use your existing site CSS (optional but nice) -->
+  <link rel="stylesheet" href="../styles/styles.css" />
+
+  <!-- App-specific styles (kept inside this file on purpose) -->
+  <style>
+    .app-wrap { max-width: 900px; margin: 0 auto; padding: 28px 16px 60px; }
+    .app-card {
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 16px;
+      padding: 18px;
+      margin-top: 16px;
+      background: rgba(255,255,255,.04);
+    }
+    .app-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+    @media (min-width: 860px) { .app-grid { grid-template-columns: 1.1fr .9fr; } }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    input[type="number"]{
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.18);
+      color: inherit;
+      width: 140px;
+      outline: none;
+    }
+    button{
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.10);
+      color: inherit;
+      cursor: pointer;
+    }
+    button:hover{ background: rgba(255,255,255,.16); }
+    .status { font-weight: 600; }
+    .muted { opacity: .8; }
+    .tiny { font-size: .92rem; opacity: .85; }
+    .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  </style>
 </head>
-<body style="font-family:Arial; padding:20px;">
-  <h1>✅ App is loading</h1>
-  <p>If you can see this, your GitHub Pages + path is correct.</p>
+
+<body>
+  <!-- Same nav style you use elsewhere -->
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="../index.html">PIERO • FINANCE</a>
+      <nav class="nav-links">
+        <a href="about.html">About</a>
+        <a href="resume.html">Resume</a>
+        <a href="skills.html">Skills</a>
+        <a href="tableau.html">Tableau</a>
+        <a href="scratch.html">Scratch</a>
+        <a class="active" href="app.html">Web App</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="app-wrap">
+    <h1>🎯 Number Guessing Game</h1>
+    <p class="subtitle">
+      A small web app I built with AI help and then customized (rules, UI, feedback, and controls).
+    </p>
+
+    <div class="app-grid">
+      <section class="app-card">
+        <h2 style="margin-top:0;">Play</h2>
+        <p class="muted">Guess the secret number between <strong>1</strong> and <strong>100</strong>.</p>
+
+        <div class="row">
+          <label for="guess" class="status">Your guess:</label>
+          <input id="guess" type="number" min="1" max="100" placeholder="1–100" />
+          <button id="btnGuess">Guess</button>
+          <button id="btnNew">New Game</button>
+        </div>
+
+        <div style="margin-top:12px;">
+          <p class="status" id="message">Click <strong>New Game</strong> to start.</p>
+          <p class="tiny">Tip: Press <span class="kbd">Enter</span> to submit a guess.</p>
+        </div>
+      </section>
+
+      <aside class="app-card">
+        <h2 style="margin-top:0;">Stats</h2>
+        <p><span class="status">Attempts:</span> <span id="attempts">0</span></p>
+        <p><span class="status">Best game:</span> <span id="best">—</span></p>
+        <div class="hr"></div>
+        <p class="tiny">
+          This app uses basic HTML + CSS + JavaScript in a single file (no frameworks),
+          so it runs cleanly on GitHub Pages.
+        </p>
+      </aside>
+    </div>
+
+    <div class="app-card">
+      <h2 style="margin-top:0;">Back to Scratch Page</h2>
+      <p class="muted">Return to the from-scratch page where this app is linked.</p>
+      <a class="btn primary" href="scratch.html">Go to Scratch</a>
+      <a class="btn ghost" href="../index.html">Home</a>
+    </div>
+  </main>
+
+  <script>
+    // --- Game state ---
+    let secret = null;
+    let attempts = 0;
+    let best = null;
+
+    const guessEl = document.getElementById("guess");
+    const msgEl = document.getElementById("message");
+    const attemptsEl = document.getElementById("attempts");
+    const bestEl = document.getElementById("best");
+    const btnGuess = document.getElementById("btnGuess");
+    const btnNew = document.getElementById("btnNew");
+
+    function setMessage(text) {
+      msgEl.textContent = text;
+    }
+
+    function updateStats() {
+      attemptsEl.textContent = attempts;
+      bestEl.textContent = best === null ? "—" : best;
+    }
+
+    function newGame() {
+      secret = Math.floor(Math.random() * 100) + 1;
+      attempts = 0;
+      guessEl.value = "";
+      guessEl.focus();
+      setMessage("Game started! Enter a number from 1 to 100.");
+      updateStats();
+    }
+
+    function submitGuess() {
+      if (secret === null) {
+        setMessage("Start first: click New Game.");
+        return;
+      }
+
+      const val = Number(guessEl.value);
+      if (!Number.isFinite(val) || val < 1 || val > 100) {
+        setMessage("Please enter a valid number between 1 and 100.");
+        return;
+      }
+
+      attempts += 1;
+      updateStats();
+
+      if (val === secret) {
+        setMessage(`✅ Correct! The number was ${secret}. You got it in ${attempts} attempt(s).`);
+        if (best === null || attempts < best) best = attempts;
+        updateStats();
+        secret = null; // end game
+        return;
+      }
+
+      const diff = Math.abs(val - secret);
+      const temp = diff <= 5 ? "🔥 super close" : diff <= 12 ? "🌡️ warm" : "🧊 cold";
+      setMessage(val < secret ? `Too low (${temp}). Try again.` : `Too high (${temp}). Try again.`);
+      guessEl.select();
+    }
+
+    // --- Events ---
+    btnNew.addEventListener("click", newGame);
+    btnGuess.addEventListener("click", submitGuess);
+    guessEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") submitGuess();
+    });
+
+    // Optional: auto-start
+    newGame();
+  </script>
 </body>
 </html>
